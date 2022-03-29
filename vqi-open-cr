@@ -1,0 +1,43 @@
+############################### Import Libraries ###############################
+library(tidyverse)
+library(lubridate)
+
+################################# Import Data ##################################
+aaa_proc <- read.csv('input/OPEN_PROC.csv')
+
+aaa_proc <- #remove retired variables
+  aaa_proc %>%
+  select(PATIENTID,PRIMPROCID,DEAD,PROC_SURVIVALDAYS,REGIONID,CENTERID,PHYSICIANID,SURGWEEKDAY,TOTAL_LOS,POSTOP_LOS,GENDER,DC_STATUS,RACE,HTCM,WTKG,PRIMARYINSURER,ETHNICITY,AGE,TRANSFER,PREOP_SMOKING,HTN,DIABETES,PRIOR_CAD,PRIOR_CABG,PRIOR_PCI,PRIOR_CHF,COPD,DIALYSIS,PREOP_CREAT,PREOP_CREAT_UMOL,STRESS,LIVINGSTATUS,QUIT_SMKG_DAYS,PREOP_AMBUL,ASACLASS,HEMO_L,HEMO,PRIOR_BYPASS,PRIOR_CEACAS,ANEURREP,PRIOR_PTASTENT,PRIOR_MAJAMP,PREOP_ASA,PREOP_P2Y,PREOP_STATIN,PREOP_BETABLOCKER,PREOP_ACE,PREOP_ANTICOAG,PRIOR_AORSURG,PREOP_EF,MAXAAADIA,ILIACANEUR,MAXIADIA,MINPREINTUBBP,MENTSTATUS,CARREST,TIME_SYMPTOINCIS,TIME_ADMTOINCIS,DCLOSURE,ANESTHESIA,CONVFROMENDO,RENVISTIME,EXP,DISTANAST,GRFTTYPE,HYPOOCC,PROXCLAMP,IMAATCOMP,EBL,PRIOR_FAMAAA,GBODYDIA,CCTHROMB,URGENCY,HEPARIN,CRPERFUSION,MANNITOL,CRYSTAL,AUTOTXF,PRBC,TOTALPROCTIME,SKINPREP,CCRENAL,CCBYPASS,CCOTHERAB,EXTUB,VASO,ICUSTAY,TXFUSION,POSTOP_MI,POSTOP_DYSRHYTHMIA,POSTOP_CHF,RESPIRATORY,POSTOP_RENAL,POSTOP_LEGISCH,BOWELISCH,WCOMP,RTOR,RTORBLEED,POSTOP_STROKE,ABX,ABX_START,ABX_STOP,DC_ASA,DC_STATIN,DC_P2Y,DC_BETABLOCKER,DC_ACE,DC_ANTICOAG,LTF_CALC,SURGERY_DT,S_COVID_STATUS,S_COVID_SYMPTOMS,S_COVID_DELAY,S_COVID_DELAY_IMPACT,S_SSN_INDICATOR,S_SUBMIT_WO_VALIDATION,S_PATIENT_ZIPCODE,S_CENTER_ZIPCODE,S_CREATED_DT,S_UPDATED_DT,S_CENTER_STATE)
+
+################################## Data Types ##################################
+numVars <- c("PROC_SURVIVALDAYS","TOTAL_LOS","POSTOP_LOS","HTCM","WTKG","AGE","QUIT_SMKG_DAYS","HEMO_L","HEMO","MAXAAADIA","MAXIADIA","MINPREINTUBBP","TIME_SYMPTOINCIS","TIME_ADMTOINCIS","RENVISTIME","EBL","GBODYDIA","CRYSTAL","AUTOTXF","PRBC","TOTALPROCTIME","ICUSTAY","TXFUSION","PREOP_CREAT","PREOP_CREAT_UMOL")
+
+charVars <- c("PATIENTID","PRIMPROCID","REGIONID","CENTERID","PHYSICIANID","S_SSN_INDICATOR","S_SUBMIT_WO_VALIDATION","S_PATIENT_ZIPCODE","S_CENTER_ZIPCODE","S_CENTER_STATE")
+
+factorVars <- c("SURGWEEKDAY","GENDER","DC_STATUS","RACE","PRIMARYINSURER","TRANSFER","PREOP_SMOKING","HTN","DIABETES","PRIOR_CAD","PRIOR_CABG","PRIOR_PCI","PRIOR_CHF","COPD","DIALYSIS","STRESS","LIVINGSTATUS","PREOP_AMBUL","ASACLASS","PRIOR_MAJAMP","PREOP_ASA","PREOP_P2Y","PREOP_STATIN","PREOP_BETABLOCKER","PREOP_ACE","PREOP_ANTICOAG","PRIOR_AORSURG","PREOP_EF","ILIACANEUR","MENTSTATUS","CARREST","ANESTHESIA","CONVFROMENDO","EXP","DISTANAST","GRFTTYPE","HYPOOCC","PROXCLAMP","IMAATCOMP","URGENCY","SKINPREP","EXTUB","POSTOP_MI","RESPIRATORY","POSTOP_RENAL","POSTOP_LEGISCH","BOWELISCH","WCOMP","RTOR","RTORBLEED","POSTOP_STROKE","ABX","ABX_START","ABX_STOP","DC_ASA","DC_STATIN","DC_P2Y","DC_BETABLOCKER","DC_ACE","DC_ANTICOAG","LTF_CALC","S_COVID_STATUS","S_COVID_SYMPTOMS","S_COVID_DELAY","S_COVID_DELAY_IMPACT")
+
+logicalVars <- c("DEAD","ETHNICITY","PRIOR_BYPASS","PRIOR_CEACAS","ANEURREP","PRIOR_PTASTENT","CARREST","DCLOSURE","PRIOR_FAMAAA","CCTHROMB","HEPARIN","CRPERFUSION","MANNITOL","CCRENAL","CCBYPASS","CCOTHERAB","VASO","POSTOP_DYSRHYTHMIA","POSTOP_CHF","RTOR","RTORBLEED")
+
+#Correct Date formats
+aaa_proc <- aaa_proc %>%
+  mutate(across(contains('_DT'), ~mdy(.)))
+
+#apply data types
+aaa_proc[numVars] <- lapply(aaa_proc[numVars], as.numeric)
+aaa_proc[charVars] <- lapply(aaa_proc[charVars], as.character)
+aaa_proc[logicalVars] <- lapply(aaa_proc[logicalVars], as.logical)
+aaa_proc[factorVars] <- lapply(aaa_proc[factorVars], as.factor)
+
+################################ Recode factors ################################
+aaa_proc$factor_race <- factor(aaa_proc_test$RACE, labels = c("American Indian or Alaskan Native","Asian","Black or African American","Native Hawaiian or other Pacific Islander","White","More than 1 race","Unknown / Other"))
+table(aaa_proc_test$RACE, aaa_proc_test$factor_race)
+
+aaa_proc$factor_dc_status <- factor(aaa_proc_test$DC_STATUS, labels = c("Home","Rehab unit","Nursing home","Dead","Other hospital","Homeless"))
+table(aaa_proc_test$DC_STATUS, aaa_proc_test$factor_dc_status)
+
+aaa_proc$factor_surgweekday <- factor(aaa_proc_test$SURGWEEKDAY, labels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+table(aaa_proc_test$SURGWEEKDAY,aaa_proc_test$factor_surgweekday)
+
+################################## Save File ##################################
+
+write_rds(aaa_proc, 'output/open_proc.rds')
